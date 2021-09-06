@@ -2,7 +2,7 @@ const gulp = require('gulp');
 const webpack = require('webpack-stream');
 const sass = require('gulp-sass')(require('sass'));
 const dist =
-  'C:/Users/rihard/Desktop/OpenServer/domains/localhost/engineLanding/admin';
+  'C:/Users/rihard/Desktop/OpenServer/domains/localhost/engine/admin';
 
 gulp.task('build-html', () => {
   return gulp.src('./app/src/index.html').pipe(gulp.dest(dist));
