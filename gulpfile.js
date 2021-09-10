@@ -17,7 +17,7 @@ gulp.task('build-js', () => {
         output: {
           filename: 'script.js',
         },
-        watch: false,
+        watch: true,
         devtool: 'source-map',
         module: {
           rules: [
@@ -41,6 +41,17 @@ gulp.task('build-js', () => {
                 },
               },
             },
+            {
+              test: /\.s[ac]ss$/i,
+              use: [
+                // Creates `style` nodes from JS strings
+                'style-loader',
+                // Translates CSS into CommonJS
+                'css-loader',
+                // Compiles Sass to CSS
+                'sass-loader',
+              ],
+            },
           ],
         },
       })
@@ -49,10 +60,13 @@ gulp.task('build-js', () => {
 });
 
 gulp.task('build-sass', () => {
-  return gulp
-    .src('./app/scss/style.scss')
-    .pipe(sass().on('error', sass.logError))
-    .pipe(gulp.dest(dist));
+  return (
+    gulp
+      // .src('./app/scss/style.scss')
+      .src('./app/**/*.scss')
+      .pipe(sass().on('error', sass.logError))
+      .pipe(gulp.dest(dist))
+  );
 });
 
 gulp.task('build-api', () => {
@@ -67,8 +81,8 @@ gulp.task('watch', () => {
   gulp.watch('./app/src/index.html', gulp.parallel('build-html'));
   gulp.watch('./app/assets/**/*.*', gulp.parallel('build-assets'));
   gulp.watch('./app/api/**/*.*', gulp.parallel('build-api'));
-  gulp.watch('./app/scss/**/*.scss', gulp.parallel('build-sass'));
-  gulp.watch('./app/src/**/*.js', gulp.parallel('build-js'));
+  gulp.watch('./app/**/*.scss', gulp.parallel('build-sass'));
+  gulp.watch('./app/**/*.js', gulp.parallel('build-js'));
 });
 
 gulp.task(

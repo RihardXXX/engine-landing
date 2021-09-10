@@ -28,4 +28,15 @@ const postNewPage = async (namePage) => {
   }
 };
 
-export { getPageList, postNewPage };
+const deleteFile = async (nameFile) => {
+  try {
+    const response = await instance.post('/deletePage.php', {
+      page: nameFile,
+    });
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { getPageList, postNewPage, deleteFile };

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getPageList, postNewPage } from '../../services';
+import { getPageList, postNewPage, deleteFile } from '../../services';
+
+import './editor.scss';
 
 const Editor = () => {
   // State Component
@@ -16,27 +18,40 @@ const Editor = () => {
   };
 
   const createNewPage = () => {
-    console.log(pageName);
     postNewPage(pageName)
       .then(({ statusText }) => {
         if (statusText === 'OK') {
           setPageName((pageName) => '');
-          renderListPage();
         }
       })
       .catch(() => alert('Страница уже существует'));
+  };
+
+  const deletePage = (page) => {
+    deleteFile(page)
+      .then(({ statusText }) => {
+        if (statusText === 'OK') console.log('delete page');
+      })
+      .catch((err) => console.log(err));
   };
 
   // Life Cickles Hooks
   useEffect(() => {
     renderListPage();
     return () => {};
-  }, []);
+  }, [listPage]);
 
-  const liRender = listPage.map((page) => <li key={page}>{page}</li>);
+  const liRender = listPage.map((page) => (
+    <li key={page}>
+      <b>{page}</b>
+      <span className="delete-page" onClick={() => deletePage(page)}>
+        <i className="fa fa-trash"></i>
+      </span>
+    </li>
+  ));
 
   return (
-    <React.Fragment>
+    <div className="editor-component">
       <div>
         <input type="text" onChange={changeInput} value={pageName} />
         <button disabled={!pageName} onClick={createNewPage}>
@@ -44,7 +59,7 @@ const Editor = () => {
         </button>
       </div>
       <ul>{liRender}</ul>
-    </React.Fragment>
+    </div>
   );
 };
 
