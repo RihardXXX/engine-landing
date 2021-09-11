@@ -1,45 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { getPageList, postNewPage, deleteFile } from '../../services';
+import React, { useEffect } from 'react';
+import { getPageList } from '../../services';
+import { getList, changePageName, createNewPage } from '../../actions';
+import { connect } from 'react-redux';
 
 import './editor.scss';
 
-const Editor = () => {
-  // State Component
-  const [listPage, setlistPage] = useState([]);
-  const [pageName, setPageName] = useState('');
-  const [error, setError] = useState(null);
+const Editor = ({ listPage, isLoading, error, pageName, getList, changeText, createNewPage }) => {
+  // const [pageName, setPageName] = useState('');
 
-  const changeInput = (e) => setPageName((pageName) => e.target.value);
+  // const changeInput = (e) => setPageName((pageName) => e.target.value);
+  const changeInput = (e) => changeText(e.target.value);
 
-  const renderListPage = () => {
-    getPageList()
-      .then((data) => setlistPage((listPage) => data))
-      .catch((er) => setError((error) => er));
-  };
-
-  const createNewPage = () => {
-    postNewPage(pageName)
-      .then(({ statusText }) => {
-        if (statusText === 'OK') {
-          setPageName((pageName) => '');
-        }
-      })
-      .catch(() => alert('Страница уже существует'));
-  };
-
-  const deletePage = (page) => {
-    deleteFile(page)
-      .then(({ statusText }) => {
-        if (statusText === 'OK') console.log('delete page');
-      })
-      .catch((err) => console.log(err));
-  };
+  // const createNewPage = () => {
+  //   postNewPage(pageName)
+  //     .then(({ statusText }) => {
+  //       if (statusText === 'OK') {
+  //         setPageName((pageName) => '');
+  //           getList()
+  //       }
+  //     })
+  //     .catch(() => alert('Страница уже существует'));
+  // };
+  //
+  // const deletePage = (page) => {
+  //   deleteFile(page)
+  //     .then(({ statusText }) => {
+  //       if (statusText === 'OK') console.log('delete page');
+  //         getList()
+  //     })
+  //     .catch((err) => console.log(err));
+  // };
 
   // Life Cickles Hooks
   useEffect(() => {
-    renderListPage();
+    getList();
     return () => {};
-  }, [listPage]);
+  }, ['']);
 
   const liRender = listPage.map((page) => (
     <li key={page}>
@@ -54,7 +50,7 @@ const Editor = () => {
     <div className="editor-component">
       <div>
         <input type="text" onChange={changeInput} value={pageName} />
-        <button disabled={!pageName} onClick={createNewPage}>
+        <button disabled={!pageName} onClick={() => createNewPage(pageName)}>
           создать страницу
         </button>
       </div>
@@ -63,4 +59,18 @@ const Editor = () => {
   );
 };
 
-export default Editor;
+const mapStateToProps = ({ editorState: { listPage, isLoading, error, pageName } }) => ({
+  listPage,
+  isLoading,
+  error,
+  pageName
+});
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getList: getList(getPageList, dispatch),
+    changeText: (text) => dispatch(changePageName(text))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Editor);
