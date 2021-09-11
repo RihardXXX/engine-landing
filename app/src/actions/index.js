@@ -1,5 +1,5 @@
 // экшены с запросами
-import { postNewPage, getPageList } from '../services'
+import { postNewPage, getPageList, deleteFile } from '../services'
 
 // Экшены для загрузки страницы
 // ===============================
@@ -40,7 +40,7 @@ const clearPageNameInput = () => {
 }
 
 // возвращает список файлов
-const getList = (getPageList, dispatch) => () => {
+const getList = (dispatch) => () => {
   dispatch(getPageListStart());
   getPageList()
     .then((data) => dispatch(getPageListSuccess(data)))
@@ -48,15 +48,25 @@ const getList = (getPageList, dispatch) => () => {
 };
 
 // создаём новый файл
-const createNewPage = (pageName,dispatch) => () => {
+const createNewPage = (pageName, dispatch) => () => {
+  console.log('pageName', pageName)
   postNewPage(pageName)
       .then(({ statusText }) => {
+        console.log('statusText', statusText)
         if (statusText === 'OK') {
           dispatch(clearPageNameInput())
-          dispatch(getList(getPageList, dispatch))
+          dispatch(getList(dispatch))
         }
       })
       .catch(() => alert('Страница уже существует'));
 };
 
-export { getList, changePageName, createNewPage };
+const deletePage = (page, dispatch) => () => {
+  deleteFile(page)
+    .then(({ statusText }) => {
+      if (statusText === 'OK') dispatch(getList(dispatch))
+    })
+    .catch((err) => console.log(err));
+};
+
+export { getList, changePageName, createNewPage, deletePage };
