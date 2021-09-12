@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const webpack = require('webpack-stream');
 const sass = require('gulp-sass')(require('sass'));
+const livereload = require('gulp-livereload')
 const dist =
   'C:/Users/rihard/Desktop/OpenServer/domains/localhost/engine/admin';
 
@@ -63,9 +64,10 @@ gulp.task('build-sass', () => {
   return (
     gulp
       // .src('./app/scss/style.scss')
-      .src('./app/**/*.scss')
+      .src('./app/scss/*.scss')
       .pipe(sass().on('error', sass.logError))
       .pipe(gulp.dest(dist))
+      .pipe(livereload())
   );
 });
 
@@ -78,10 +80,11 @@ gulp.task('build-assets', () => {
 });
 
 gulp.task('watch', () => {
+  livereload.listen()
   gulp.watch('./app/src/index.html', gulp.parallel('build-html'));
   gulp.watch('./app/assets/**/*.*', gulp.parallel('build-assets'));
   gulp.watch('./app/api/**/*.*', gulp.parallel('build-api'));
-  gulp.watch('./app/**/*.scss', gulp.parallel('build-sass'));
+  gulp.watch('./app/scss/*.scss', gulp.parallel('build-sass'));
   gulp.watch('./app/**/*.js', gulp.parallel('build-js'));
 });
 
