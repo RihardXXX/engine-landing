@@ -15,10 +15,41 @@ const Editor = ({ listPage, isLoading, error, pageName, getList, changeText, cre
   const changeInput = (e) => changeText(e.target.value);
 
   const open = (page) => {
+    // прописываем относительный путь
     currentPage = `../${page}`
     if (iframe) {
       iframe.load(currentPage, () => {
-        console.log('currentpage', currentPage)
+        // получаем тело документа из айфрейма
+        const body = iframe.contentDocument.body
+        let textNodes = []
+
+        // рекурсивно находим контент текстовый которые нужно редактировать
+        const recursySearch = (element) => {
+          element.childNodes.forEach(node => {
+            console.log(node)
+            // регуляркой в условии также заменяем всё неадеватное на пустую строку
+            if(node.nodeName === "#text" && node.nodeValue.replace(/\s+/g, "").length > 0) {
+              // console.log(node)
+              textNodes.push(node)
+            } else {
+              recursySearch(node)
+            }
+          })
+        }
+
+        recursySearch(body)
+
+        // тут у текстовых нод создаём обёртки для редактирования
+        textNodes.forEach(node => {
+          // создаём свой тэг в айфрейме
+          const wrapper = iframe.contentDocument.createElement('text-editor')
+          // у каждой текстовой ноды в отце заменяем себя на наш тэг
+          node.parentNode.replaceChild(wrapper, node)
+          // а потом уже в свой тэг кладём текстовую ноду
+          wrapper.appendChild(node)
+          // включаем у своего тэга режим редактирования
+          wrapper.contentEditable = 'true'
+        })
       })
     }
   }
